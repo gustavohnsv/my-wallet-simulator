@@ -1,0 +1,3 @@
+/home/gustavo/CLionProjects/Wallet/cmake-build-debug/CMakeFiles/Wallet.dir
+/home/gustavo/CLionProjects/Wallet/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/gustavo/CLionProjects/Wallet/cmake-build-debug/CMakeFiles/rebuild_cache.dir
