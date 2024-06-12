@@ -2,16 +2,23 @@
 // Created by gustavo on 11/06/24.
 //
 
+#include <iostream>
 #include "Wallet.h"
 #include "../Customer/Customer.h"
 #include "../WalletHistory/WalletHistory.h"
+
+#define RED_COLOR "\033[1;31m"
+#define BLUE_COLOR "\033[1;34m"
+#define LIGHTBLUE_COLOR "\033[1;36m"
+#define GREEN_COLOR "\033[1;32m"
 
 /**
  * Constructor of Wallet class
  * @param owner
  */
-Wallet::Wallet(Customer* owner) : walletHistory(new WalletHistory()),
-owner(owner){}
+Wallet::Wallet(Customer* owner) : cash(0) ,
+owner(owner),
+walletHistory(new WalletHistory()){}
 
 /**
  * Method that returns wallet cash
@@ -19,22 +26,6 @@ owner(owner){}
  */
 double Wallet::getCash() const {
     return this->cash;
-}
-
-/**
- * Method that returns wallet owner Class
- * @return Customer*
- */
-Customer *Wallet::getOwner() const {
-    return this->owner;
-}
-
-/**
- * Method that returns wallet history Class
- * @return WalletHistory*
- */
-WalletHistory* Wallet::getWalletHistory() const {
-    return this->walletHistory;
 }
 
 /**
@@ -69,7 +60,9 @@ bool Wallet::withdrawCash(double amount) {
  */
 bool Wallet::depositCash(double amount) {
     if (amount < 0) {
-        // std::cout << "ERROR: no operation\n";
+        printf(RED_COLOR);
+        std::cout << "ERROR: no operation\n";
+        printf("\033[0m");
         return false;
     } else {
         this->setCash(this->getCash() + amount);
@@ -86,7 +79,9 @@ bool Wallet::depositCash(double amount) {
  */
 bool Wallet::transferCash(Wallet * targetWallet, double amount) {
     if (this->getCash() < amount) {
-        // std::cout << "ERROR: insufficient funds\n";
+        printf(RED_COLOR);
+        std::cout << "ERROR: insufficient funds\n";
+        printf("\033[0m");
         return false;
     } else {
         targetWallet->setCash(targetWallet->getCash() + amount);
@@ -94,4 +89,20 @@ bool Wallet::transferCash(Wallet * targetWallet, double amount) {
         this->getWalletHistory()->getHistoryData()->newTransferOperation(this, targetWallet, -amount);
         return true;
     }
+}
+
+/**
+ * Method that returns wallet owner Class
+ * @return Customer*
+ */
+Customer *Wallet::getOwner() const {
+    return this->owner;
+}
+
+/**
+ * Method that returns wallet history Class
+ * @return WalletHistory*
+ */
+WalletHistory* Wallet::getWalletHistory() const {
+    return this->walletHistory;
 }

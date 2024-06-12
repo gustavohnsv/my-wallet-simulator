@@ -4,10 +4,12 @@
 
 #include <cstdlib>
 #include <cstdio>
+#include <iostream>
 #include "WalletHistory.h"
 #include "../Customer/Customer.h"
 #include "../Wallet/Wallet.h"
 
+#define RESET_COLOR "\033[0m"
 #define RED_COLOR "\033[1;31m"
 #define BLUE_COLOR "\033[1;34m"
 #define LIGHTBLUE_COLOR "\033[1;36m"
@@ -138,15 +140,13 @@ void WalletHistory::showHistoryData() {
     for (int i = 0; i < W; i++) {
         printf(LIGHTBLUE_COLOR);
         printf("[\U0001F4B0] Depósito / Saque: \n\n");
-        printf("\033[0m");
+        printf(RESET_COLOR);
         WithdrawDepositTemplate* wdTemplate = this->getHistoryData()->getWithdrawDeposit();
         Wallet* wallet = wdTemplate[i].user;
         if (wallet && wallet->getOwner()) {
             printf(BLUE_COLOR);
-            printf("Dono da carteira: %s %s\n",
-                   wallet->getOwner()->getFirstName().c_str(),
-                   wallet->getOwner()->getLastName().c_str());
-            printf("\033[0m");
+            std::cout << "Carteira: " << wallet->getOwner()->getFirstName() << " " << wallet->getOwner()->getLastName() << "\n";
+            printf(RESET_COLOR);
         }
         if (wdTemplate[i].value > 0) {
             printf(GREEN_COLOR);
@@ -155,27 +155,23 @@ void WalletHistory::showHistoryData() {
             printf(RED_COLOR);
             printf("Balanço: %.2f\n\n", wdTemplate[i].value);
         }
-        printf("\033[0m");
+        printf(RESET_COLOR);
     }
     for (int j = 0; j < T; j++) {
         printf(LIGHTBLUE_COLOR);
         printf("[\U0001F4B9] Transferência: \n\n");
-        printf("\033[0m");
+        printf(RESET_COLOR);
             TransferTemplate* tTemplate = this->getHistoryData()->getTransfer();
             Wallet* wallet = tTemplate[j].user;
             Wallet* target = tTemplate[j].target;
             if ((wallet && wallet->getOwner()) && (target && target->getOwner())) {
                 printf(BLUE_COLOR);
-                printf("Dono da carteira de origem: %s %s\n",
-                       wallet->getOwner()->getFirstName().c_str(),
-                       wallet->getOwner()->getLastName().c_str());
-                printf("Dono da carteira de destino: %s %s\n",
-                       target->getOwner()->getFirstName().c_str(),
-                       target->getOwner()->getLastName().c_str());
-                printf("\033[0m");
+                std::cout << "Carteira origem: " << wallet->getOwner()->getFirstName() << " " << wallet->getOwner()->getLastName() << "\n";
+                std::cout << "Carteira destino: " << target->getOwner()->getFirstName() << " " << target->getOwner()->getLastName() << "\n";
+                printf(RESET_COLOR);
             }
             printf(RED_COLOR);
             printf("Balanço de origem: %.2f\n\n", tTemplate[j].value);
-            printf("\033[0m");
+            printf(RESET_COLOR);
     }
 }

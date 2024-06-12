@@ -1,5 +1,5 @@
 # Definição do compilador
-CXX = gcc
+CXX = g++
 
 # Flags de compilação
 CXXFLAGS = -std=c++11 -Wall
@@ -11,13 +11,13 @@ WALLET_DIR = $(SRC_DIR)/Wallet
 WALLETHISTORY_DIR = $(SRC_DIR)/WalletHistory
 
 # Arquivos fonte
-SOURCES = $(CUSTOMER_DIR)/Customer.cpp $(WALLET_DIR)/Wallet.cpp $(WALLETHISTORY_DIR)/WalletHistory.cpp main.cpp
+SOURCES = $(CUSTOMER_DIR)/Customer.cpp $(WALLET_DIR)/Wallet.cpp $(WALLETHISTORY_DIR)/WalletHistory.cpp $(SRC_DIR)/main.cpp
 
-# Arquivo objeto
+# Arquivos objeto
 OBJECTS = $(SOURCES:.cpp=.o)
 
 # Nome do executável
-EXEC = main
+EXEC = WalletApp
 
 # Regras
 all: $(EXEC)
@@ -25,7 +25,16 @@ all: $(EXEC)
 $(EXEC): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-%.o: %.cpp
+$(SRC_DIR)/%.o: $(SRC_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(CUSTOMER_DIR)/%.o: $(CUSTOMER_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(WALLET_DIR)/%.o: $(WALLET_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(WALLETHISTORY_DIR)/%.o: $(WALLETHISTORY_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Limpeza

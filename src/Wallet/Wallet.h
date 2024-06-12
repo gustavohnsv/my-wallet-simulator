@@ -18,11 +18,11 @@ public:
     Wallet(Customer*);
     void setCash(double);
     [[nodiscard]] double getCash() const;
-    [[nodiscard]] Customer* getOwner() const;
-    [[nodiscard]] WalletHistory* getWalletHistory() const;
     bool withdrawCash(double);
     bool depositCash(double);
     bool transferCash(Wallet*, double);
+    [[nodiscard]] Customer* getOwner() const;
+    [[nodiscard]] WalletHistory* getWalletHistory() const;
 };
 
 

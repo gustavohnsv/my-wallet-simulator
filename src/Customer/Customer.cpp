@@ -4,7 +4,8 @@
 
 #include <cstdlib>
 #include "Customer.h"
-#include "../Wallet//Wallet.h"
+#include "../Wallet/Wallet.h"
+
 /**
  * Constructor of Customer class
  * @param firstName
