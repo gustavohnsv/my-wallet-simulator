@@ -39,7 +39,10 @@ void printHelp() {
 }
 
 void printCustomers(const std::vector<Customer*> &customerList) {
-    if (customerList.empty()) {
+    if (customerList.empty() != 0) {
+        printf(RED_COLOR);
+        std::cout << "ERROR: Empty list.\n";
+        printf(RESET_COLOR);
         return;
     } for (Customer* customer: customerList) {
         std::cout << "Name: "<< customer->getFirstName() << " " << customer->getLastName() << " Cash: " << customer->getWallet()->getCash() << "\n";
@@ -56,6 +59,21 @@ Customer* searchCustomer(const std::string &firstName, const std::string &lastNa
         }
     }
     return nullptr;
+}
+
+int searchCustomerIndex(const std::string &firstName, const std::string &lastName, const std::vector<Customer*> &customerList) {
+    if (customerList.empty()) {
+        return -1;
+    } else {
+        int i = 0;
+        for (Customer* customer: customerList) {
+            if (customer->getFirstName() == firstName && customer->getLastName() == lastName) {
+                return i;
+            }
+            i++;
+        }
+    }
+    return -1;
 }
 
 int main() {
@@ -83,6 +101,22 @@ int main() {
             printf(GREEN_COLOR);
             std::cout << "Customer created with success!\n";
             printf(RESET_COLOR);
+        } else if (Operation == "delete") {
+            std::string FirstName;
+            std::string LastName;
+            std::cin >> FirstName;
+            std::cin >> LastName;
+            int tempCustomerIndex = searchCustomerIndex(FirstName, LastName, customerList);
+            if (tempCustomerIndex != -1){
+                customerList.erase(customerList.begin() + tempCustomerIndex);
+                printf(GREEN_COLOR);
+                std::cout << "Customer deleted with success!\n";
+                printf(RESET_COLOR);
+            } else {
+                printf(RED_COLOR);
+                std::cout << "Customer not found.\n";
+                printf(RESET_COLOR);
+            }
         } else if (Operation == "history") {
             std::string FirstName;
             std::string LastName;
