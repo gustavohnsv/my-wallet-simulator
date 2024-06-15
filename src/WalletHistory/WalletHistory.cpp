@@ -148,30 +148,27 @@ void WalletHistory::showHistoryData() {
             std::cout << "Carteira: " << wallet->getOwner()->getFirstName() << " " << wallet->getOwner()->getLastName() << "\n";
             printf(RESET_COLOR);
         }
-        if (wdTemplate[i].value > 0) {
-            printf(GREEN_COLOR);
-            printf("Balanço: +%.2f\n\n", wdTemplate[i].value);
-        } else {
-            printf(RED_COLOR);
-            printf("Balanço: %.2f\n\n", wdTemplate[i].value);
-        }
+        if (wdTemplate[i].value > 0) { printf(GREEN_COLOR); }
+        else { printf(RED_COLOR); }
+        printf("Balanço: %.2f\n\n", wdTemplate[i].value);
         printf(RESET_COLOR);
     }
     for (int j = 0; j < T; j++) {
         printf(LIGHTBLUE_COLOR);
         printf("[\U0001F4B9] Transferência: \n\n");
         printf(RESET_COLOR);
-            TransferTemplate* tTemplate = this->getHistoryData()->getTransfer();
-            Wallet* wallet = tTemplate[j].user;
-            Wallet* target = tTemplate[j].target;
-            if ((wallet && wallet->getOwner()) && (target && target->getOwner())) {
-                printf(BLUE_COLOR);
-                std::cout << "Carteira origem: " << wallet->getOwner()->getFirstName() << " " << wallet->getOwner()->getLastName() << "\n";
-                std::cout << "Carteira destino: " << target->getOwner()->getFirstName() << " " << target->getOwner()->getLastName() << "\n";
-                printf(RESET_COLOR);
-            }
-            printf(RED_COLOR);
-            printf("Balanço de origem: %.2f\n\n", tTemplate[j].value);
+        TransferTemplate* tTemplate = this->getHistoryData()->getTransfer();
+        Wallet* wallet = tTemplate[j].user;
+        Wallet* target = tTemplate[j].target;
+        if ((wallet && wallet->getOwner()) && (target && target->getOwner())) {
+            printf(BLUE_COLOR);
+            std::cout << "Carteira origem: " << wallet->getOwner()->getFirstName() << " " << wallet->getOwner()->getLastName() << "\n";
+            std::cout << "Carteira destino: " << target->getOwner()->getFirstName() << " " << target->getOwner()->getLastName() << "\n";
             printf(RESET_COLOR);
+        }
+        if (tTemplate[j].value > 0) { printf(GREEN_COLOR); }
+        else { printf(RED_COLOR); }
+        printf("Balanço de origem: %.2f\n\n", tTemplate[j].value);
+        printf(RESET_COLOR);
     }
 }

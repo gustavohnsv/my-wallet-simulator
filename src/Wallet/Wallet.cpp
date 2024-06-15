@@ -60,9 +60,6 @@ bool Wallet::withdrawCash(double amount) {
  */
 bool Wallet::depositCash(double amount) {
     if (amount < 0) {
-        printf(RED_COLOR);
-        std::cout << "ERROR: no operation\n";
-        printf("\033[0m");
         return false;
     } else {
         this->setCash(this->getCash() + amount);
@@ -79,13 +76,11 @@ bool Wallet::depositCash(double amount) {
  */
 bool Wallet::transferCash(Wallet * targetWallet, double amount) {
     if (this->getCash() < amount) {
-        printf(RED_COLOR);
-        std::cout << "ERROR: insufficient funds\n";
-        printf("\033[0m");
         return false;
     } else {
         targetWallet->setCash(targetWallet->getCash() + amount);
         this->setCash(this->getCash() - amount);
+        targetWallet->getWalletHistory()->getHistoryData()->newTransferOperation(targetWallet, this, amount);
         this->getWalletHistory()->getHistoryData()->newTransferOperation(this, targetWallet, -amount);
         return true;
     }

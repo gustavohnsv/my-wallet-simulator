@@ -97,10 +97,17 @@ int main() {
             std::string LastName;
             std::cin >> FirstName;
             std::cin >> LastName;
-            customerList.push_back(new Customer(FirstName, LastName));
-            printf(GREEN_COLOR);
-            std::cout << "Customer created with success!\n";
-            printf(RESET_COLOR);
+            Customer* tempCustomer = searchCustomer(FirstName, LastName, customerList);
+            if (tempCustomer != nullptr) {
+                printf(RED_COLOR);
+                std::cout << "Customer name unavailable, try another!\n";
+                printf(RESET_COLOR);
+            } else {
+                customerList.push_back(new Customer(FirstName, LastName));
+                printf(GREEN_COLOR);
+                std::cout << "Customer created with success!\n";
+                printf(RESET_COLOR);
+            }
         } else if (Operation == "delete") {
             std::string FirstName;
             std::string LastName;
