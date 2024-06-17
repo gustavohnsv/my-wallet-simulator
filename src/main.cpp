@@ -2,6 +2,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include <unordered_map>
+#include <string>
 
 #include "Wallet/Wallet.h"
 #include "Customer/Customer.h"
@@ -39,21 +41,19 @@ void printHelp() {
 }
 
 void printCustomers(const std::vector<Customer*> &customerList) {
-    if (customerList.empty() != 0) {
+    if (customerList.empty()) {
         printf(RED_COLOR);
         std::cout << "ERROR: Empty list.\n";
         printf(RESET_COLOR);
         return;
-    } for (Customer* customer: customerList) {
-        std::cout << "Name: "<< customer->getFirstName() << " " << customer->getLastName() << " Cash: " << customer->getWallet()->getCash() << "\n";
+    }
+    for (Customer* customer : customerList) {
+        std::cout << "Name: " << customer->getFirstName() << " " << customer->getLastName() << " Cash: " << customer->getWallet()->getCash() << "\n";
     }
 }
 
 Customer* searchCustomer(const std::string &firstName, const std::string &lastName, const std::vector<Customer*> &customerList) {
-    if (customerList.empty()) {
-        return nullptr;
-    }
-    for (Customer* customer: customerList) {
+    for (Customer* customer : customerList) {
         if (customer->getFirstName() == firstName && customer->getLastName() == lastName) {
             return customer;
         }
@@ -62,170 +62,195 @@ Customer* searchCustomer(const std::string &firstName, const std::string &lastNa
 }
 
 int searchCustomerIndex(const std::string &firstName, const std::string &lastName, const std::vector<Customer*> &customerList) {
-    if (customerList.empty()) {
-        return -1;
-    } else {
-        int i = 0;
-        for (Customer* customer: customerList) {
-            if (customer->getFirstName() == firstName && customer->getLastName() == lastName) {
-                return i;
-            }
-            i++;
+    for (int i = 0; i < ((int) customerList.size()); ++i) {
+        if (customerList[i]->getFirstName() == firstName && customerList[i]->getLastName() == lastName) {
+            return i;
         }
     }
     return -1;
 }
 
-int main() {
+enum Command {
+    CREATE,
+    DELETE,
+    HISTORY,
+    DEPOSIT,
+    WITHDRAW,
+    TRANSFER,
+    HELP,
+    CLEAR,
+    LIST,
+    EXIT,
+    UNKNOWN
+};
 
+Command getCommand(const std::string& operation) {
+    static const std::unordered_map<std::string, Command> commandMap = {
+            {"create", CREATE},
+            {"delete", DELETE},
+            {"history", HISTORY},
+            {"deposit", DEPOSIT},
+            {"withdraw", WITHDRAW},
+            {"transfer", TRANSFER},
+            {"help", HELP},
+            {"clear", CLEAR},
+            {"list", LIST},
+            {"exit", EXIT}
+    };
+
+    auto it = commandMap.find(operation);
+    if (it != commandMap.end()) {
+        return it->second;
+    }
+    return UNKNOWN;
+}
+
+int main() {
     clearScreen();
     printHelp();
 
-    std::vector<Customer*> customerList; // Now customerList is a vector of Customer*, using vector standard library header
+    std::vector<Customer*> customerList;
 
-    std::string Operation;
+    std::string operation;
 
     do {
         printf(BLUE_COLOR);
         std::cout << ">>> ";
         printf(RESET_COLOR);
         printf(YELLOW_COLOR);
-        std::cin >> Operation;
+        std::cin >> operation;
         printf(RESET_COLOR);
-        if (Operation == "create") {
-            std::string FirstName;
-            std::string LastName;
-            std::cin >> FirstName;
-            std::cin >> LastName;
-            Customer* tempCustomer = searchCustomer(FirstName, LastName, customerList);
-            if (tempCustomer != nullptr) {
-                printf(RED_COLOR);
-                std::cout << "Customer name unavailable, try another!\n";
-                printf(RESET_COLOR);
-            } else {
-                customerList.push_back(new Customer(FirstName, LastName));
-                printf(GREEN_COLOR);
-                std::cout << "Customer created with success!\n";
-                printf(RESET_COLOR);
-            }
-        } else if (Operation == "delete") {
-            std::string FirstName;
-            std::string LastName;
-            std::cin >> FirstName;
-            std::cin >> LastName;
-            int tempCustomerIndex = searchCustomerIndex(FirstName, LastName, customerList);
-            if (tempCustomerIndex != -1){
-                customerList.erase(customerList.begin() + tempCustomerIndex);
-                printf(GREEN_COLOR);
-                std::cout << "Customer deleted with success!\n";
-                printf(RESET_COLOR);
-            } else {
-                printf(RED_COLOR);
-                std::cout << "Customer not found.\n";
-                printf(RESET_COLOR);
-            }
-        } else if (Operation == "history") {
-            std::string FirstName;
-            std::string LastName;
-            std::cin >> FirstName;
-            std::cin >> LastName;
-            Customer* tempCustomer = searchCustomer(FirstName, LastName, customerList);
-            if (tempCustomer != nullptr) {
-                if (tempCustomer->getWallet()->getCash() == 0) {
+
+        Command cmd = getCommand(operation);
+
+        switch (cmd) {
+            case CREATE: {
+                std::string firstName, lastName;
+                std::cin >> firstName >> lastName;
+                if (searchCustomer(firstName, lastName, customerList)) {
                     printf(RED_COLOR);
-                    std::cout << "No balance history." << "\n";
+                    std::cout << "Customer name unavailable, try another!\n";
                     printf(RESET_COLOR);
                 } else {
+                    customerList.push_back(new Customer(firstName, lastName));
                     printf(GREEN_COLOR);
-                    std::cout<< "Actual cash: " << tempCustomer->getWallet()->getCash() << "\n";
+                    std::cout << "Customer created with success!\n";
                     printf(RESET_COLOR);
                 }
-                tempCustomer->getWallet()->getWalletHistory()->showHistoryData();
-            } else {
-                printf(RED_COLOR);
-                std::cout << "Customer not found.\n";
-                printf(RESET_COLOR);
+                break;
             }
-        } else if (Operation == "deposit") {
-            std::string FirstName;
-            std::string LastName;
-            double amount;
-            std::cin >> FirstName;
-            std::cin >> LastName;
-            std::cin >> amount;
-            Customer* tempCustomer = searchCustomer(FirstName, LastName, customerList);
-            if (tempCustomer != nullptr) {
-                tempCustomer->getWallet()->depositCash(amount);
-                printf(GREEN_COLOR);
-                std::cout<< "Success! Actual cash: " << tempCustomer->getWallet()->getCash() << "\n";
-                printf(RESET_COLOR);
-            } else {
-                printf(RED_COLOR);
-                std::cout << "Customer not found.\n";
-                printf(RESET_COLOR);
-            }
-        } else if (Operation == "withdraw") {
-            std::string FirstName;
-            std::string LastName;
-            double amount;
-            std::cin >> FirstName;
-            std::cin >> LastName;
-            std::cin >> amount;
-            Customer* tempCustomer = searchCustomer(FirstName, LastName, customerList);
-            if (tempCustomer != nullptr) {
-                if (tempCustomer->getWallet()->withdrawCash(amount) == 0) {
-                    std::cout << "ERROR: no cash available to withdraw actual amount!\n";
+            case DELETE: {
+                std::string firstName, lastName;
+                std::cin >> firstName >> lastName;
+                int index = searchCustomerIndex(firstName, lastName, customerList);
+                if (index != -1) {
+                    delete customerList[index];
+                    customerList.erase(customerList.begin() + index);
+                    printf(GREEN_COLOR);
+                    std::cout << "Customer deleted with success!\n";
+                    printf(RESET_COLOR);
                 } else {
-                    printf(GREEN_COLOR);
-                    std::cout<< "Success! Actual cash: " << tempCustomer->getWallet()->getCash() << "\n";
+                    printf(RED_COLOR);
+                    std::cout << "Customer not found.\n";
                     printf(RESET_COLOR);
                 }
-            } else {
-                printf(RED_COLOR);
-                std::cout << "Customer not found.\n";
-                printf(RESET_COLOR);
+                break;
             }
-        } else if (Operation == "transfer") {
-            std::string FirstName, LastName;
-            std::string TargetFirstName, TargetLastName;
-            double amount;
-            std::cin >> FirstName;
-            std::cin >> LastName;
-            std::cin >> TargetFirstName;
-            std::cin >> TargetLastName;
-            std::cin >> amount;
-            Customer* tempCustomer = searchCustomer(FirstName, LastName, customerList);
-            Customer* tempTargetCustomer = searchCustomer(TargetFirstName, TargetLastName, customerList);
-            if (tempCustomer != nullptr && tempTargetCustomer != nullptr) {
-                Wallet* tempTargetWallet = tempTargetCustomer->getWallet();
-                if (tempCustomer->getWallet()->transferCash(tempTargetWallet, amount) == 0) {
-                    std::cout << "ERROR: no cash available to transfer actual cash!\n";
+            case HISTORY: {
+                std::string firstName, lastName;
+                std::cin >> firstName >> lastName;
+                Customer* customer = searchCustomer(firstName, lastName, customerList);
+                if (customer) {
+                    printf(GREEN_COLOR);
+                    std::cout << "Actual cash: " << customer->getWallet()->getCash() << "\n";
+                    printf(RESET_COLOR);
+                    customer->getWallet()->getWalletHistory()->showHistoryData();
                 } else {
-                    printf(GREEN_COLOR);
-                    std::cout<< "Success! Actual cash: " << tempCustomer->getWallet()->getCash() << "\n";
+                    printf(RED_COLOR);
+                    std::cout << "Customer not found.\n";
                     printf(RESET_COLOR);
                 }
-            } else {
-                printf(RED_COLOR);
-                std::cout << "Customer not found.\n";
-                printf(RESET_COLOR);
+                break;
             }
-        } else if (Operation == "help") {
-            printHelp();
-        }   else if (Operation == "list") {
-            printCustomers(customerList);
-        } else if (Operation == "clear") {
-            clearScreen();
-        } else if (Operation == "exit") {
-            for (Customer* customer: customerList) { // "Garbage collector" of customerList
-                delete customer;
+            case DEPOSIT: {
+                std::string firstName, lastName;
+                double amount;
+                std::cin >> firstName >> lastName >> amount;
+                Customer* customer = searchCustomer(firstName, lastName, customerList);
+                if (customer) {
+                    customer->getWallet()->depositCash(amount);
+                    printf(GREEN_COLOR);
+                    std::cout << "Success! Actual cash: " << customer->getWallet()->getCash() << "\n";
+                    printf(RESET_COLOR);
+                } else {
+                    printf(RED_COLOR);
+                    std::cout << "Customer not found.\n";
+                    printf(RESET_COLOR);
+                }
+                break;
             }
-            std::cout << "Exiting...\n";
-            exit(0);
-        } else {
-            std::cout << "Unknown command...\n";
+            case WITHDRAW: {
+                std::string firstName, lastName;
+                double amount;
+                std::cin >> firstName >> lastName >> amount;
+                Customer* customer = searchCustomer(firstName, lastName, customerList);
+                if (customer) {
+                    if (customer->getWallet()->withdrawCash(amount)) {
+                        printf(GREEN_COLOR);
+                        std::cout << "Success! Actual cash: " << customer->getWallet()->getCash() << "\n";
+                        printf(RESET_COLOR);
+                    } else {
+                        std::cout << "ERROR: no cash available to withdraw actual amount!\n";
+                    }
+                } else {
+                    printf(RED_COLOR);
+                    std::cout << "Customer not found.\n";
+                    printf(RESET_COLOR);
+                }
+                break;
+            }
+            case TRANSFER: {
+                std::string firstName, lastName, targetFirstName, targetLastName;
+                double amount;
+                std::cin >> firstName >> lastName >> targetFirstName >> targetLastName >> amount;
+                Customer* customer = searchCustomer(firstName, lastName, customerList);
+                Customer* targetCustomer = searchCustomer(targetFirstName, targetLastName, customerList);
+                if (customer && targetCustomer) {
+                    if (customer->getWallet()->transferCash(targetCustomer->getWallet(), amount)) {
+                        printf(GREEN_COLOR);
+                        std::cout << "Success! Actual cash: " << customer->getWallet()->getCash() << "\n";
+                        printf(RESET_COLOR);
+                    } else {
+                        std::cout << "ERROR: no cash available to transfer actual cash!\n";
+                    }
+                } else {
+                    printf(RED_COLOR);
+                    std::cout << "Customer not found.\n";
+                    printf(RESET_COLOR);
+                }
+                break;
+            }
+            case HELP:
+                printHelp();
+                break;
+            case CLEAR:
+                clearScreen();
+                break;
+            case LIST:
+                printCustomers(customerList);
+                break;
+            case EXIT:
+                for (Customer* customer : customerList) {
+                    delete customer;
+                }
+                std::cout << "Exiting...\n";
+                exit(0);
+            case UNKNOWN:
+            default:
+                std::cout << "Unknown command...\n";
+                break;
         }
-    }
-    while (Operation != "exit");
+    } while (operation != "exit");
+
     return 0;
 }
